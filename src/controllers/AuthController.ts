@@ -38,14 +38,14 @@ export class AuthController {
     }
 
     static confirmAccount = async (req: Request, res: Response) => {
-        
-        const { token } = req.body
-        
-        const user = await User.findOne({where: { token }})
 
-        if(!user){
+        const { token } = req.body
+
+        const user = await User.findOne({ where: { token } })
+
+        if (!user) {
             const error = new Error('Token no válido')
-            res.status(401).json({error: error.message})
+            res.status(401).json({ error: error.message })
             return
         }
         user.confirmed = true
@@ -66,7 +66,7 @@ export class AuthController {
             return
         }
 
-        if(!user.confirmed){
+        if (!user.confirmed) {
             const error = new Error('La cuenta no ha sido confirmada')
             res.status(403).json({ error: error.message })
             return
@@ -74,7 +74,7 @@ export class AuthController {
 
         const isPasswordCorrect = await checkPassword(password, user.password)
 
-        if(!isPasswordCorrect){
+        if (!isPasswordCorrect) {
             const error = new Error('Password incorrecto')
             res.status(401).json({ error: error.message })
             return
@@ -110,12 +110,12 @@ export class AuthController {
     }
 
     static validateToken = async (req: Request, res: Response) => {
-        const { token  } = req.body
+        const { token } = req.body
 
-        const tokenExists = await User.findOne({where: {token}})
-        if(!tokenExists){
+        const tokenExists = await User.findOne({ where: { token } })
+        if (!tokenExists) {
             const error = new Error('Token no válido')
-            res.status(404).json({error: error.message})
+            res.status(404).json({ error: error.message })
             return
         }
 
@@ -126,10 +126,10 @@ export class AuthController {
         const { token } = req.params
         const { password } = req.body
 
-        const user = await User.findOne({where: {token}})
-        if(!user){
+        const user = await User.findOne({ where: { token } })
+        if (!user) {
             const error = new Error('Token no válido')
-            res.status(404).json({error: error.message})
+            res.status(404).json({ error: error.message })
             return
         }
 
@@ -144,4 +144,41 @@ export class AuthController {
     static user = async (req: Request, res: Response) => {
         res.json(req.user)
     }
+
+    static updateCurrentUserPassword = async (req: Request, res: Response) => {
+
+        const { current_password, password } = req.body;
+        const { id } = req.user;
+
+        const user = await User.findByPk(id);
+
+        const isPasswordCorrect = await checkPassword(current_password, user.password);
+        if (!isPasswordCorrect) {
+            res.status(401).json({ error: 'El password actual es incorrecto' });
+            return
+        }
+
+        user.password = await hashPassword(password);
+        await user.save();
+
+        res.json('El password se modificó correctamente');
+
+    };
+
+    static checkPassword = async (req: Request, res: Response) => {
+
+        const { password } = req.body;
+        const { id } = req.user;
+
+        const user = await User.findByPk(id);
+
+        const isPasswordCorrect = await checkPassword(password, user.password);
+        if (!isPasswordCorrect) {
+            res.status(401).json({ error: 'El password actual es incorrecto' });
+            return
+        }
+
+        res.json('Password correcto');
+
+    };
 }

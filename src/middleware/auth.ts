@@ -34,12 +34,13 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
                 attributes: ['id', 'name', 'email']
             })
 
-            next()
+            return next()
         }
 
     } catch (error) {
         res.status(500).json({ error: 'Token no válido' })
+        return
     }
 
-    next()
+    return next()
 }
