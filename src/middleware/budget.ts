@@ -31,13 +31,14 @@ export const validateBudgetExists = async (req: Request, res: Response, next: Ne
         if (!budget) {
             const error = new Error('Presupuesto no encontrado')
             res.status(404).json({ error: error.message })
+            return
         }
 
         req.budget = budget
 
         next()
     } catch (error) {
-        res.status(500).json({ error: 'Huno un error' })
+        res.status(500).json({ error: 'Hubo un error' })
     }
 }
 
