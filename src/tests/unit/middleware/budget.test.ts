@@ -76,9 +76,6 @@ describe('budget middleware - hasAccess', () => {
         const res = createResponse()
         const next = jest.fn()
 
-        console.log(req.user.id)
-        console.log(req.budget.userId)
-
         await hasAccess(req, res, next)
         expect(next).toHaveBeenCalled()
         expect(next).toHaveBeenCalledTimes(1)
@@ -93,9 +90,6 @@ describe('budget middleware - hasAccess', () => {
 
         const res = createResponse()
         const next = jest.fn()
-
-        console.log(req.user.id)
-        console.log(req.budget.userId)
 
         await hasAccess(req, res, next)
         expect(next).not.toHaveBeenCalled()
