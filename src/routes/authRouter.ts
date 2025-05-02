@@ -11,7 +11,7 @@ router.use(limiter)
 
 router.post('/create-account',
     body('name')
-        .notEmpty().withMessage('No puede ir vacio'),
+        .notEmpty().withMessage('El nombre no puede ir vacio'),
     body('password')
         .isLength({ min: 8 }).withMessage('El password es muy corto, mínimo 8 caracteres'),
     body('email')
@@ -85,6 +85,16 @@ router.post('/check-password',
 router.get('/user',
     authenticate,
     AuthController.user
+)
+
+router.put('/user', 
+    authenticate,
+    body('email')
+        .isEmail().withMessage('Email no válido'),
+    body('name')
+        .notEmpty().withMessage('El nombre no puede ir vacio'),
+    handleInputErrors,
+    AuthController.updateProfileUser
 )
 
 export default router

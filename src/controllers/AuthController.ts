@@ -187,4 +187,32 @@ export class AuthController {
         res.json('Password correcto');
 
     };
+
+    static updateProfileUser = async (req: Request, res: Response) => {
+        const {name, email} = req.body
+        const { id } = req.user
+
+        //Prevenir duplicado
+        const userExisted = await User.findOne({ where: { email } })
+
+        if (userExisted) {
+            const error = new Error('Un usuario con ese email ya esta resgistrado')
+            res.status(409).json({ error: error.message })
+            return
+        }
+        //Encontrar usuario
+        const user = await User.findByPk(id)
+
+        if(!user){
+            const error = new Error('Usuario no encontrado')
+            res.status(404).json({error: error.message})
+            return
+        }
+
+        user.name = name
+        user.email = email
+        await user.save()
+
+        res.json('Usuario actualizado correctamente')
+    }
 }
