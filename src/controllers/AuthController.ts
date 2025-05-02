@@ -192,27 +192,23 @@ export class AuthController {
         const {name, email} = req.body
         const { id } = req.user
 
-        //Prevenir duplicado
-        const userExisted = await User.findOne({ where: { email } })
+        try {
+            //Prevenir duplicado
+            const userExisted = await User.findOne({ where: { email } })
 
-        if (userExisted) {
-            const error = new Error('Un usuario con ese email ya esta resgistrado')
-            res.status(409).json({ error: error.message })
-            return
+            if (userExisted && userExisted.id !== req.user.id) {
+                const error = new Error('Un usuario con ese email ya esta resgistrado')
+                res.status(409).json({ error: error.message })
+                return
+            }
+
+            await User.update({name,email}, {
+                where: {id: id}
+            })
+
+            res.json('Perfil actualizado correctamente')
+        } catch (error) {
+            res.status(500).json('Hubo un error')
         }
-        //Encontrar usuario
-        const user = await User.findByPk(id)
-
-        if(!user){
-            const error = new Error('Usuario no encontrado')
-            res.status(404).json({error: error.message})
-            return
-        }
-
-        user.name = name
-        user.email = email
-        await user.save()
-
-        res.json('Usuario actualizado correctamente')
     }
 }
